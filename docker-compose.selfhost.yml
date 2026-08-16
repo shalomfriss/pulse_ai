@@ -1,0 +1,35 @@
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: pulse_ai
+      MYSQL_USER: pulse
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-change-this-mysql-password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change-this-root-password}
+    volumes:
+      - pulse_ai_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-change-this-root-password}"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_URL: mysql://pulse:${MYSQL_PASSWORD:-change-this-mysql-password}@mysql:3306/pulse_ai
+      LOCAL_MYSQL_PROXY_URL: http://127.0.0.1:8789
+      CREDENTIALS_ENCRYPTION_KEY: ${CREDENTIALS_ENCRYPTION_KEY:?Set CREDENTIALS_ENCRYPTION_KEY}
+      ALPACA_AUTO_TRADE: "false"
+      LOCAL_DEV_USER_EMAIL: ${LOCAL_DEV_USER_EMAIL:-}
+      LOCAL_DEV_USER_NAME: ${LOCAL_DEV_USER_NAME:-}
+    ports:
+      - "3000:3000"
+
+volumes:
+  pulse_ai_mysql_data:

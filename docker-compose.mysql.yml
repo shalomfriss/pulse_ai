@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: pulse-ai-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: pulse_ai
+      MYSQL_USER: pulse
+      MYSQL_PASSWORD: pulse-local-password
+      MYSQL_ROOT_PASSWORD: pulse-local-root-password
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - pulse_ai_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-ppulse-local-root-password"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  pulse_ai_mysql_data:

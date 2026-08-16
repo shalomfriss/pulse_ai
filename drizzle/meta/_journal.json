@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1784310257731,
+      "tag": "0000_unique_moira_mactaggert",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1784329994014,
+      "tag": "0001_flippant_felicia_hardy",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1786166400000,
+      "tag": "0002_isolated_account_profiles",
+      "breakpoints": true
+    }
+  ]
+}
