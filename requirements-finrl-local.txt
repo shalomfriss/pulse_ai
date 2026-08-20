@@ -1,0 +1,4 @@
+# FinRL's YahooDownloader passes proxy when supported; this pin retains the
+# compatible 0.2.x API while the vendored downloader also handles newer APIs.
+yfinance==0.2.54
+tensorboard>=2.21

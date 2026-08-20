@@ -26,10 +26,20 @@ const bridge = spawn(process.execPath, ["scripts/mysql-bridge.mjs"], {
   stdio: "inherit",
   env: environment,
 });
+const kronos = spawn(process.execPath, ["scripts/kronos-local.mjs"], {
+  stdio: "inherit",
+  env: environment,
+});
+const finrl = spawn(process.execPath, ["scripts/finrl-local.mjs"], {
+  stdio: "inherit",
+  env: environment,
+});
 const app = spawn("npm", ["run", "dev"], { stdio: "inherit", env: environment });
 
 function stop(signal = "SIGTERM") {
   bridge.kill(signal);
+  kronos.kill(signal);
+  finrl.kill(signal);
   app.kill(signal);
   localMySqlProcess?.kill(signal);
 }
@@ -38,10 +48,30 @@ for (const signal of ["SIGINT", "SIGTERM"]) {
 }
 app.on("exit", (code) => {
   bridge.kill("SIGTERM");
+  kronos.kill("SIGTERM");
+  finrl.kill("SIGTERM");
   process.exit(code ?? 0);
 });
 bridge.on("exit", (code) => {
   if (code) {
+    kronos.kill("SIGTERM");
+    finrl.kill("SIGTERM");
+    app.kill("SIGTERM");
+    process.exit(code);
+  }
+});
+kronos.on("exit", (code) => {
+  if (code) {
+    bridge.kill("SIGTERM");
+    finrl.kill("SIGTERM");
+    app.kill("SIGTERM");
+    process.exit(code);
+  }
+});
+finrl.on("exit", (code) => {
+  if (code) {
+    bridge.kill("SIGTERM");
+    kronos.kill("SIGTERM");
     app.kill("SIGTERM");
     process.exit(code);
   }

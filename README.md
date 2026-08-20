@@ -16,6 +16,18 @@ cp .env.example .env.local
 npm run local
 ```
 
+The local launcher also starts the Kronos financial forecasting workbench at
+`http://localhost:7071`; open the **Kronos** tab inside Pulse AI to use its
+data loading, model selection, forecasting, chart comparison, and result
+export features. Kronos dependencies are installed into the ignored
+`.venv-kronos/` environment.
+
+The local launcher also starts the FinRL research workbench at
+`http://localhost:7072`; open the **FinRL** tab for step-by-step instructions
+and controls for the official data-preparation, DRL-training, and backtesting
+examples. FinRL is installed editable into the ignored `.venv-finrl/`
+environment. The workbench runs research jobs only and does not submit trades.
+
 `npm run local` starts MySQL, applies the MySQL schema, starts a localhost-only
 database bridge, and launches Pulse AI. Open the URL printed by the development
 server. MySQL listens only on `127.0.0.1:3307`; data is stored in the Docker

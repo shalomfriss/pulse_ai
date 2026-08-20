@@ -674,6 +674,8 @@ export default function Home() {
           <a href="/market-intelligence">Market Intelligence</a>
           <a href="/valuation">Valuation</a>
           <a href="/mass-valuation">Mass Valuation</a>
+          <a className="nav-kronos-item" href="/kronos">Kronos</a>
+          <a className="nav-finrl-item" href="/finrl">FinRL</a>
           <a className={`${pageKey === "decisions" ? "nav-active " : ""}nav-overflow-item`} href="/why-these-decisions">Why These Decisions</a>
           <a className={`${pageKey === "strategies" ? "nav-active " : ""}nav-overflow-item`} href="/strategy-lab">Strategy Lab</a>
           <a className={`${pageKey === "positions" ? "nav-active " : ""}nav-overflow-item`} href="/positions">Positions</a>
@@ -689,6 +691,8 @@ export default function Home() {
               <a href="/market-intelligence">Market Intelligence</a>
               <a href="/mass-valuation">Mass Valuation</a>
               <a href="/candlestick">Candlestick</a>
+              <a className="nav-kronos-item" href="/kronos">Kronos</a>
+              <a className="nav-finrl-item" href="/finrl">FinRL</a>
               <a className={pageKey === "decisions" ? "nav-active" : ""} href="/why-these-decisions">Why These Decisions</a>
               <a className={pageKey === "strategies" ? "nav-active" : ""} href="/strategy-lab">Strategy Lab</a>
               <a className={pageKey === "positions" ? "nav-active" : ""} href="/positions">Positions</a>
