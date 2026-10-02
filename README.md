@@ -40,6 +40,29 @@ the database with:
 npm run local:mysql:stop
 ```
 
+## Compile market history for offline backtests
+
+Open **Backtesting** or **Day Trading**, choose a symbol, timeframe, and date
+range, then select **Compile 10 years locally**. Pulse AI downloads adjusted
+Alpaca IEX bars, validates and sorts them, removes duplicate timestamps, and
+stores the compiled dataset in browser IndexedDB. The cache is keyed by symbol
+and timeframe, so both research pages reuse the same bars instead of downloading
+separate copies.
+
+After the first successful compilation, backtests and day-trading optimization
+load covered ranges from IndexedDB and execute in the shared browser worker.
+Those runs do not contact Alpaca or the backtesting APIs. The local or self-hosted
+Pulse AI application must still be running, but market-data internet access is
+not required. Uploading an OHLCV CSV also compiles it into the same local library.
+
+Each dataset may contain up to 300,000 bars and each request may span up to ten
+years. A ten-year 5-minute request can approach the limit; use 15-minute or
+hourly bars for symbols with extended sessions. **Refresh local data** explicitly
+downloads the selected range again and merges it with the cached record.
+
+Browser storage is origin-specific: `http://localhost:3000` and a hosted domain
+have separate libraries. Clearing site data removes the compiled datasets.
+
 To use an existing MySQL 8+ server, set `MYSQL_URL`, set
 `LOCAL_MYSQL_MANAGED=false`, and run `npm run local`.
 

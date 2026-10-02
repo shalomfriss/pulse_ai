@@ -18,7 +18,7 @@ lock = threading.Lock()
 WORKFLOWS = {
     "data": {"label": "1 · Download & prepare data", "script": "examples/FinRL_StockTrading_2026_1_data.py", "description": "Downloads the DOW 30 sample from Yahoo Finance, adds technical indicators, VIX, and turbulence, then writes train_data.csv and trade_data.csv."},
     "train": {"label": "2 · Train DRL agents", "script": "examples/FinRL_StockTrading_2026_2_train.py", "description": "Trains A2C, DDPG, PPO, TD3, and SAC agents with Stable-Baselines3 and saves checkpoints under trained_models/."},
-    "backtest": {"label": "3 · Backtest & compare", "script": "examples/FinRL_StockTrading_2026_3_Backtest.py", "description": "Requires all five trained_models/agent_*.zip checkpoints. Runs trained agents on the trading period and compares them with MVO and DJIA baselines."},
+    "backtest": {"label": "3 · Backtest & compare", "script": "examples/FinRL_StockTrading_2026_3_Backtest.py", "description": "Requires all five trained_models/agent_*.zip checkpoints. Runs trained agents on the trading period and compares them with MVO and DJIA baselines; if Yahoo rate-limits ^DJI, it uses a local equal-weight benchmark."},
 }
 
 PAGE = """<!doctype html>

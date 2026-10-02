@@ -3,6 +3,7 @@
 import { PointerEvent as ReactPointerEvent,useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "./theme-toggle";
+import TopbarNav from "./topbar-nav";
 
 type Signal = {
   symbol: string;
@@ -647,6 +648,15 @@ export default function Home() {
           : pathname === "/transactions" ? "transactions"
             : pathname === "/news-radar" || pathname === "/news" ? "news"
               : "command";
+  const activeNavHref:Record<string,string> = {
+    command:"/command-center",
+    signals:"/signals",
+    decisions:"/why-these-decisions",
+    strategies:"/strategy-lab",
+    positions:"/positions",
+    transactions:"/transactions",
+    news:"/news-radar",
+  };
   const pageMeta:Record<string,{ eyebrow:string;title:string;description:string }> = {
     signals:{ eyebrow:"RANKED MARKET EVIDENCE",title:"Signals",description:"Compare the agent’s highest-conviction names, inspect price and sentiment inputs, and open the full thesis for any selected stock." },
     decisions:{ eyebrow:"EXPLAINABLE MARKET INTELLIGENCE",title:"Why these decisions",description:"Audit the score formula, sentiment breadth, and individual decision trace behind the latest ranked roster." },
@@ -667,41 +677,7 @@ export default function Home() {
     <main className={pageKey === "strategies" ? "strategy-view" : undefined}>
       <header className="topbar">
         <a className="brand" href="/command-center" aria-label="Pulse command center"><span className="brand-mark">P</span><span>PULSE<span className="brand-dot">•</span>AI</span></a>
-        <nav aria-label="Primary navigation">
-          <a className={`${pageKey === "command" ? "nav-active " : ""}nav-home-item`} href="/command-center">Command Center</a>
-          <a className={`${pageKey === "signals" ? "nav-active " : ""}nav-signals-item`} href="/signals">Signals</a>
-          <a className="nav-company-item" href="/company-analysis">Company Analysis</a>
-          <a href="/market-intelligence">Market Intelligence</a>
-          <a href="/valuation">Valuation</a>
-          <a href="/mass-valuation">Mass Valuation</a>
-          <a className="nav-kronos-item" href="/kronos">Kronos</a>
-          <a className="nav-finrl-item" href="/finrl">FinRL</a>
-          <a className={`${pageKey === "decisions" ? "nav-active " : ""}nav-overflow-item`} href="/why-these-decisions">Why These Decisions</a>
-          <a className={`${pageKey === "strategies" ? "nav-active " : ""}nav-overflow-item`} href="/strategy-lab">Strategy Lab</a>
-          <a className={`${pageKey === "positions" ? "nav-active " : ""}nav-overflow-item`} href="/positions">Positions</a>
-          <a className={`${pageKey === "transactions" ? "nav-active " : ""}nav-tag nav-overflow-item`} href="/transactions">Transactions</a>
-          <a className={`${pageKey === "news" ? "nav-active " : ""}nav-overflow-item`} href="/news-radar">News Radar</a>
-          <a className="nav-overflow-item" href="/settings">Settings</a>
-          <details className={`nav-more ${["decisions","strategies","positions","transactions","news"].includes(pageKey) ? "nav-more-active" : ""}`}>
-            <summary aria-label="Open more navigation links">More <span aria-hidden="true">⌄</span></summary>
-            <div className="nav-more-menu">
-              <a className="nav-more-home" href="/command-center">Command Center</a>
-              <a className="nav-more-signals" href="/signals">Signals</a>
-              <a className="nav-more-company" href="/company-analysis">Company Analysis</a>
-              <a href="/market-intelligence">Market Intelligence</a>
-              <a href="/mass-valuation">Mass Valuation</a>
-              <a href="/candlestick">Candlestick</a>
-              <a className="nav-kronos-item" href="/kronos">Kronos</a>
-              <a className="nav-finrl-item" href="/finrl">FinRL</a>
-              <a className={pageKey === "decisions" ? "nav-active" : ""} href="/why-these-decisions">Why These Decisions</a>
-              <a className={pageKey === "strategies" ? "nav-active" : ""} href="/strategy-lab">Strategy Lab</a>
-              <a className={pageKey === "positions" ? "nav-active" : ""} href="/positions">Positions</a>
-              <a className={pageKey === "transactions" ? "nav-active" : ""} href="/transactions">Transactions</a>
-              <a className={pageKey === "news" ? "nav-active" : ""} href="/news-radar">News Radar</a>
-              <a href="/settings">Settings</a>
-            </div>
-          </details>
-        </nav>
+        <TopbarNav activeHref={activeNavHref[pageKey]} />
         <ThemeToggle />
         <div className="market-state"><div className="profile-switcher" role="group" aria-label="Active Alpaca account profile"><button type="button" aria-pressed={activeProfile==="paper"} onClick={() => account.profiles.paper.configured?activateProfile("paper"):(setSettingsProfile("paper"),setSettingsOpen(true))}>PAPER</button><button type="button" aria-pressed={activeProfile==="live"} onClick={() => account.profiles.live.configured?activateProfile("live"):(setSettingsProfile("live"),setSettingsOpen(true))}>LIVE{!account.profiles.live.configured&&<i>+</i>}</button></div><span className={`live-dot ${activeProfile==="live"?"real-money-dot":""}`} /> {data.marketOpen ? "MARKET OPEN" : "MARKET CLOSED"} <b className={activeProfile==="live"?"live-profile-badge":""}>{data.mode === "live" ? `ALPACA ${activeProfile.toUpperCase()}` : "DEMO MODE"}</b><button className="account-button" onClick={() => { setSettingsProfile(activeProfile);setSettingsOpen(true); }}>{account.user?.displayName ?? account.user?.email}</button></div>
       </header>

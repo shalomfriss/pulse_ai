@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import ThemeToggle from "../theme-toggle";
+import TopbarNav from "../topbar-nav";
 
 type CompanyAnalysis = {
   symbol:string;companyName:string;product:string;direction:string;category:string;
@@ -49,9 +50,7 @@ export default function MarketIntelligenceClient({ displayName }:{ displayName:s
   return <main className="market-intelligence-page">
     <header className="topbar">
       <a className="brand" href="/command-center" aria-label="Pulse command center"><span className="brand-mark">P</span><span>PULSE<span className="brand-dot">•</span>AI</span></a>
-      <nav aria-label="Primary navigation">
-        <a href="/command-center">Command Center</a><a href="/signals">Signals</a><a href="/company-analysis">Company Analysis</a><a className="nav-active" href="/market-intelligence">Market Intelligence</a><a href="/valuation">Valuation</a><details className="nav-more"><summary aria-label="Open more navigation links">More <span aria-hidden="true">⌄</span></summary><div className="nav-more-menu"><a href="/mass-valuation">Mass Valuation</a><a href="/candlestick">Candlestick</a><a href="/why-these-decisions">Why These Decisions</a><a href="/strategy-lab">Strategy Lab</a><a href="/positions">Positions</a><a href="/transactions">Transactions</a><a href="/news-radar">News Radar</a><a href="/settings">Settings</a></div></details>
-      </nav>
+      <TopbarNav activeHref="/market-intelligence" />
       <ThemeToggle />
       <div className="market-state"><span className="live-dot" /> 30-DAY NEWS <b>COMPETITIVE LENS</b><a className="account-button analysis-account" href="/settings">{displayName}</a></div>
     </header>

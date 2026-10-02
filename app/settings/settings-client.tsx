@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import ThemeToggle from "../theme-toggle";
+import TopbarNav from "../topbar-nav";
 
 type AccountProfile = "paper" | "live";
 type ProfileSummary = { configured: boolean; autoTrade: boolean; keyHint: string | null; source: "stored" | "legacy" | "none" };
@@ -63,32 +64,7 @@ export default function SettingsClient({ displayName, email }:{ displayName:stri
   return <main className="settings-page">
     <header className="topbar">
       <a className="brand" href="/command-center" aria-label="Pulse command center"><span className="brand-mark">P</span><span>PULSE<span className="brand-dot">•</span>AI</span></a>
-      <nav aria-label="Primary navigation">
-        <a className="nav-home-item" href="/command-center">Command Center</a>
-        <a className="nav-signals-item" href="/signals">Signals</a>
-        <a className="nav-company-item" href="/company-analysis">Company Analysis</a>
-        <a href="/market-intelligence">Market Intelligence</a>
-        <a href="/valuation">Valuation</a>
-        <a href="/mass-valuation">Mass Valuation</a>
-        <a className="nav-overflow-item" href="/why-these-decisions">Why These Decisions</a>
-        <a className="nav-overflow-item" href="/strategy-lab">Strategy Lab</a>
-        <a className="nav-overflow-item" href="/positions">Positions</a>
-        <a className="nav-tag nav-overflow-item" href="/transactions">Transactions</a>
-        <a className="nav-overflow-item" href="/news-radar">News Radar</a>
-        <a className="nav-active nav-overflow-item" href="/settings">Settings</a>
-        <details className="nav-more nav-more-active">
-          <summary aria-label="Open more navigation links">More <span aria-hidden="true">⌄</span></summary>
-          <div className="nav-more-menu">
-            <a className="nav-more-home" href="/command-center">Command Center</a>
-            <a className="nav-more-signals" href="/signals">Signals</a>
-            <a className="nav-more-company" href="/company-analysis">Company Analysis</a>
-            <a href="/market-intelligence">Market Intelligence</a>
-            <a href="/mass-valuation">Mass Valuation</a>
-            <a href="/candlestick">Candlestick</a>
-            <a href="/why-these-decisions">Why These Decisions</a><a href="/strategy-lab">Strategy Lab</a><a href="/positions">Positions</a><a href="/transactions">Transactions</a><a href="/news-radar">News Radar</a><a className="nav-active" href="/settings">Settings</a>
-          </div>
-        </details>
-      </nav>
+      <TopbarNav activeHref="/settings" />
       <ThemeToggle />
       <div className="market-state"><span className="live-dot" /> ACCOUNT CONTROL <b>ALPACA</b><a className="account-button analysis-account" href="/command-center">{displayName}</a></div>
     </header>

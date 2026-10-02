@@ -1,0 +1,17 @@
+.bt-local-history,
+.dt-local-history {
+  color: #11130f;
+}
+
+.bt-local-history button:focus-visible,
+.dt-local-history button:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+  .bt-local-history,
+  .dt-local-history {
+    grid-template-columns: 1fr;
+  }
+}
