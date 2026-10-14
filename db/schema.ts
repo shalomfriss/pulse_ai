@@ -10,6 +10,22 @@ export const userCredentials = sqliteTable("user_credentials", {
   updatedAt: text("updated_at").notNull(),
 },(table) => [primaryKey({ columns:[table.userEmail,table.accountProfile] })]);
 
+export const localUsers = sqliteTable("local_users", {
+  email:text("email").primaryKey(),
+  displayName:text("display_name").notNull(),
+  passwordHash:text("password_hash").notNull(),
+  passwordSalt:text("password_salt").notNull(),
+  createdAt:text("created_at").notNull(),
+  updatedAt:text("updated_at").notNull(),
+});
+
+export const localSessions = sqliteTable("local_sessions", {
+  sessionTokenHash:text("session_token_hash").primaryKey(),
+  userEmail:text("user_email").notNull(),
+  expiresAt:text("expires_at").notNull(),
+  createdAt:text("created_at").notNull(),
+},(table) => [index("local_sessions_user_lookup").on(table.userEmail,table.expiresAt)]);
+
 export const userStrategySettings = sqliteTable("user_strategy_settings", {
   userEmail:text("user_email").notNull(),
   accountProfile:text("account_profile", { enum:["paper","live"] }).notNull().default("paper"),

@@ -346,6 +346,36 @@ function AccountSettings({ account,activeProfile="paper",setup=false,onSaved,onP
   </section>;
 }
 
+function LocalAuthGate({ onAuthenticated }:{ onAuthenticated:(next:AccountState)=>void }) {
+  const [mode,setMode] = useState<"login"|"register">("login");
+  const [email,setEmail] = useState("");
+  const [displayName,setDisplayName] = useState("");
+  const [password,setPassword] = useState("");
+  const [busy,setBusy] = useState(false);
+  const [message,setMessage] = useState("");
+  const submit = async (event:React.FormEvent) => {
+    event.preventDefault();setBusy(true);setMessage(mode === "register" ? "Creating your local account…" : "Signing you in…");
+    try {
+      const endpoint = mode === "register" ? "/api/auth/register" : "/api/auth/login";
+      const response = await fetch(endpoint,{
+        method:"POST",headers:{ "content-type":"application/json" },body:JSON.stringify({ email,displayName,password }),
+      });
+      const result = await response.json() as AccountState & { error?:string };
+      if (!response.ok) throw new Error(result.error || "Authentication failed");
+      onAuthenticated({ ...result,status:"authenticated" });
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Authentication failed");
+    } finally { setBusy(false); }
+  };
+  const registering = mode === "register";
+  return <main className="account-gate"><div className="gate-card"><span className="brand-mark">P</span><small>LOCAL MARKET WORKSPACE</small><h1>{registering ? "Create your account." : "Sign in locally."}</h1><p>Use a local Pulse AI account stored in this MySQL database. Your Alpaca profiles, strategy settings, and performance history stay isolated by email address.</p><form className="local-auth-form" onSubmit={submit}>
+    {registering && <label><span>DISPLAY NAME</span><input value={displayName} onChange={(event)=>setDisplayName(event.target.value)} autoComplete="name" placeholder="Your name" /></label>}
+    <label><span>EMAIL</span><input type="email" value={email} onChange={(event)=>setEmail(event.target.value)} autoComplete="email" placeholder="you@example.com" required /></label>
+    <label><span>PASSWORD</span><input type="password" value={password} onChange={(event)=>setPassword(event.target.value)} autoComplete={registering ? "new-password" : "current-password"} placeholder="At least 8 characters" required minLength={8} /></label>
+    <button className="signin-button" disabled={busy}>{busy ? "PLEASE WAIT…" : registering ? "CREATE ACCOUNT" : "SIGN IN"}</button>
+  </form><button className="auth-mode-button" type="button" onClick={() => { setMode(registering ? "login" : "register");setMessage(""); }}>{registering ? "Already have an account? Sign in" : "Need an account? Register"}</button>{message && <p className="settings-message" role="status">{message}</p>}</div></main>;
+}
+
 function PerformanceChart({ points,loading }:{ points:PerformancePoint[];loading:boolean }) {
   const [rangeDays,setRangeDays]=useState<(typeof performanceRanges)[number]["days"]>(365);
   const [windowRange,setWindowRange]=useState<[number,number]|null>(null);
@@ -669,7 +699,7 @@ export default function Home() {
   const ss = String(seconds % 60).padStart(2, "0");
 
   if (account.status === "loading") return <main className="account-gate"><div className="gate-card"><span className="orb orb-live"><i /></span><small>SECURE WORKSPACE</small><h1>Loading your market agent…</h1></div></main>;
-  if (account.status === "anonymous") return <main className="account-gate"><div className="gate-card"><span className="brand-mark">P</span><small>MULTI-USER MARKET INTELLIGENCE</small><h1>Your trading agent.<br /><em>Your Alpaca accounts.</em></h1><p>Sign in with ChatGPT to access isolated Paper and Live account profiles with separate credentials and performance histories.</p><a className="signin-button" href="/signin-with-chatgpt?return_to=%2F">SIGN IN WITH CHATGPT →</a></div></main>;
+  if (account.status === "anonymous") return <LocalAuthGate onAuthenticated={setAccount} />;
   if (account.status === "error") return <main className="account-gate"><div className="gate-card"><small>SETUP UNAVAILABLE</small><h1>Secure storage needs attention.</h1><p>{account.error}</p><button className="signin-button" onClick={() => window.location.reload()}>TRY AGAIN</button></div></main>;
   if (!account.profiles.paper.configured&&!account.profiles.live.configured) return <main><AccountSettings account={account} activeProfile="paper" setup onSaved={setAccount} onProfileChange={activateProfile} /></main>;
 

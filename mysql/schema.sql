@@ -9,6 +9,26 @@ CREATE TABLE IF NOT EXISTS user_credentials (
   PRIMARY KEY (user_email, account_profile)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS local_users (
+  email VARCHAR(320) NOT NULL,
+  display_name VARCHAR(160) NOT NULL,
+  password_hash VARCHAR(128) NOT NULL,
+  password_salt VARCHAR(64) NOT NULL,
+  created_at VARCHAR(35) NOT NULL,
+  updated_at VARCHAR(35) NOT NULL,
+  PRIMARY KEY (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS local_sessions (
+  session_token_hash VARCHAR(64) NOT NULL,
+  user_email VARCHAR(320) NOT NULL,
+  expires_at VARCHAR(35) NOT NULL,
+  created_at VARCHAR(35) NOT NULL,
+  PRIMARY KEY (session_token_hash),
+  INDEX local_sessions_user_lookup (user_email, expires_at),
+  FOREIGN KEY (user_email) REFERENCES local_users(email) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS user_strategy_settings (
   user_email VARCHAR(320) NOT NULL,
   account_profile ENUM('paper', 'live') NOT NULL DEFAULT 'paper',
