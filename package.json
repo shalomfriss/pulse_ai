@@ -16,7 +16,13 @@
     "start:mysql": "node scripts/run-selfhost.mjs",
     "test": "npm run build && node --test tests/*.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "data:compile": "node scripts/compile-backtesting-data.mjs",
+    "data:inactive": "node scripts/compile-alpaca-inactive.mjs",
+    "data:current-gaps": "node scripts/compile-alpaca-current-gaps.mjs",
+    "data:universe": "python3 scripts/fetch-market-universe.py",
+    "data:import": "python3 scripts/import-backtesting-csv.py",
+    "data:audit": "python3 scripts/audit-backtesting-data.py"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
@@ -26,6 +32,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",
+    "@cloudflare/workers-types": "^4.20260702.1",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",
@@ -33,6 +40,7 @@
     "@vitejs/plugin-react": "6.0.2",
     "@vitejs/plugin-rsc": "0.5.26",
     "drizzle-kit": "0.31.10",
+    "esbuild": "^0.28.0",
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.6",
     "mysql2": "3.14.4",

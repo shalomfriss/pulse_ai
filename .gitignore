@@ -45,3 +45,7 @@ next-env.d.ts
 /work/
 /.venv-kronos/
 /.venv-finrl/
+/backtesting_data/*.json
+/backtesting_data/current-symbols.txt
+/backtesting_data/missing-symbols.txt
+/backtesting_data/*.log

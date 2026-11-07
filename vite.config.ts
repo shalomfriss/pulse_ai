@@ -8,7 +8,7 @@ const { r2 } = hostingConfig;
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
-export default defineConfig(async ({ mode }) => {
+export default defineConfig(async ({ command, mode }) => {
   // Keep Wrangler and Miniflare state project-local. These are non-secret tool
   // settings; application environment belongs in ignored `.env*` files.
   process.env.WRANGLER_WRITE_LOGS ??= "false";
@@ -17,10 +17,7 @@ export default defineConfig(async ({ mode }) => {
 
   const fileEnv = loadEnv(mode, process.cwd(), "");
   const localVariable = (key: string) => process.env[key] ?? fileEnv[key] ?? "";
-  const localBindingConfig = {
-    main: "./worker/index.ts",
-    compatibility_flags: ["nodejs_compat"],
-    vars: {
+  const localVars: Record<string,string> = command === "serve" ? {
       LOCAL_DEV_USER_EMAIL: localVariable("LOCAL_DEV_USER_EMAIL"),
       LOCAL_DEV_USER_NAME: localVariable("LOCAL_DEV_USER_NAME"),
       LOCAL_MYSQL_PROXY_URL: localVariable("LOCAL_MYSQL_PROXY_URL"),
@@ -29,7 +26,20 @@ export default defineConfig(async ({ mode }) => {
       ALPACA_API_KEY_ID: localVariable("ALPACA_API_KEY_ID"),
       ALPACA_API_SECRET_KEY: localVariable("ALPACA_API_SECRET_KEY"),
       ALPACA_AUTO_TRADE: localVariable("ALPACA_AUTO_TRADE") || "false",
-    },
+      BACKTESTING_DATA_SOURCE: localVariable("BACKTESTING_DATA_SOURCE"),
+      BACKTESTING_DATA_AUTH_TOKEN: localVariable("BACKTESTING_DATA_AUTH_TOKEN"),
+      OPENAI_API_KEY: localVariable("OPENAI_API_KEY"),
+      OPENAI_RULE_MODEL: localVariable("OPENAI_RULE_MODEL") || "gpt-4o-mini",
+      RULE_SCHEDULER_SECRET: localVariable("RULE_SCHEDULER_SECRET"),
+    } : {};
+  const localBindingConfig = {
+    main: "./worker/index.ts",
+    compatibility_flags: ["nodejs_compat"],
+    // Build artifacts must not contain local identities, credentials, or keys.
+    // Development bindings are provided by the local environment; production
+    // deployments supply their own runtime bindings and secrets.
+    vars: localVars,
+    triggers: { crons: ["* * * * *"] },
     d1_databases: [],
     r2_buckets: r2
       ? [

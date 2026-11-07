@@ -25,6 +25,12 @@ test("compileBars sorts, validates, and removes duplicate timestamps", () => {
   assert.equal(compiled.report.invalidRemoved, 2);
 });
 
+test("archive compilation accepts one trading day while strategy backtests require two", () => {
+  assert.equal(compileBars([risingBars[0]], undefined, 1).bars.length, 1);
+  assert.throws(() => compileBars([risingBars[0]]), /At least 2 valid historical bars required/);
+  assert.throws(() => runBacktest({ bars:[risingBars[0]],strategy:"buy-hold",initialCapital:10_000 }), /At least 2 valid historical bars required/);
+});
+
 test("compileBars rejects datasets above the resource limit", () => {
   assert.equal(MAX_BARS,300_000);
   assert.throws(() => compileBars(Array.from({ length: 81 }, (_, index) => ({
@@ -106,6 +112,9 @@ test("backtest source exposes the website tab and authenticated API", async () =
     readFile(new URL("app/api/history/route.ts", root), "utf8"),
     readFile(new URL("app/backtesting/local-history.ts", root), "utf8"),
   ]);
+  assert.doesNotMatch(navigation, /className=\{`brand nav-home/);
+  assert.match(navigation, /aria-label="Open site navigation"/);
+  assert.match(navigation, /href="\/news-radar"/);
   assert.match(navigation, /\["\/backtesting", "Backtesting"\]/);
   assert.match(page, /BacktestingClient/);
   assert.match(route, /getChatGPTUser/);
@@ -114,7 +123,7 @@ test("backtest source exposes the website tab and authenticated API", async () =
   assert.doesNotMatch(route, /compileBars\(/);
   assert.match(historyRoute,/fetchAlpacaHistory/);
   assert.match(historyLibrary,/indexedDB\.open/);
-  assert.match(client,/COMPILE 10 YEARS LOCALLY/);
+  assert.match(client,/COMPILE SELECTED RANGE/);
   assert.match(client,/runLocalBacktest/);
   assert.doesNotMatch(client,/fetch\("\/api\/backtesting"/);
   assert.doesNotMatch(client, /Math\.(?:min|max)\(\.\.\.values\)/);

@@ -1,6 +1,7 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { runDueRuleSets } from "../lib/rule-execution";
 
 interface Env {
   ASSETS: Fetcher;
@@ -26,10 +27,11 @@ interface ExecutionContext {
 // const imageConfig: ImageConfig = { dangerouslyAllowSVG: true };
 
 const worker = {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env?: Env, ctx?: ExecutionContext): Promise<Response> {
+    (globalThis as typeof globalThis & { __PULSE_D1_DATABASE__?: D1Database }).__PULSE_D1_DATABASE__ = env?.DB;
     const url = new URL(request.url);
 
-    if (url.pathname === "/_vinext/image") {
+    if (url.pathname === "/_vinext/image" && env?.ASSETS && env?.IMAGES) {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
       return handleImageOptimization(request, {
         fetchAsset: (path) => env.ASSETS.fetch(new Request(new URL(path, request.url))),
@@ -41,6 +43,12 @@ const worker = {
     }
 
     return handler.fetch(request, env, ctx);
+  },
+  scheduled(_controller: {scheduledTime:number}, env:Env, ctx:ExecutionContext):void {
+    (globalThis as typeof globalThis & { __PULSE_D1_DATABASE__?: D1Database }).__PULSE_D1_DATABASE__ = env.DB;
+    ctx.waitUntil(runDueRuleSets(new Date()).then((runs)=>{
+      if(runs.length) console.log(`Scheduled ${runs.length} rule set run(s)`);
+    }));
   },
 };
 

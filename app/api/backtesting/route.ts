@@ -31,7 +31,7 @@ async function alpacaBars(body:RequestBody,email:string) {
 export async function GET() {
   const user=await getChatGPTUser();
   if (!user) return Response.json({ error:"Sign in required" },{ status:401 });
-  return Response.json({ strategies:strategyCatalog,timeframes:HISTORY_TIMEFRAMES,maximumYears:10,maximumBars:MAX_BARS,localCache:true });
+  return Response.json({ strategies:strategyCatalog,timeframes:HISTORY_TIMEFRAMES,maximumYears:20,maximumBars:MAX_BARS,localCache:true });
 }
 
 export async function POST(request:Request) {

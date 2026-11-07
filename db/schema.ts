@@ -1,4 +1,4 @@
-import { index, integer, primaryKey, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const userCredentials = sqliteTable("user_credentials", {
   userEmail: text("user_email").notNull(),
@@ -47,3 +47,25 @@ export const strategyPerformance = sqliteTable("strategy_performance", {
   primaryKey({ columns:[table.userEmail,table.accountProfile,table.strategyId,table.recordedAt] }),
   index("strategy_performance_lookup").on(table.userEmail,table.accountProfile,table.strategyId,table.recordedAt),
 ]);
+
+export const userRuleSets = sqliteTable("user_rule_sets", {
+  id:text("id").primaryKey(),
+  userEmail:text("user_email").notNull(),
+  accountProfile:text("account_profile",{enum:["paper","live"]}).notNull().default("paper"),
+  name:text("name").notNull(),
+  prompt:text("prompt").notNull(),
+  specJson:text("spec_json").notNull(),
+  enabled:integer("enabled",{mode:"boolean"}).notNull().default(false),
+  createdAt:text("created_at").notNull(),
+  updatedAt:text("updated_at").notNull(),
+},(table)=>[index("user_rule_sets_owner").on(table.userEmail,table.accountProfile)]);
+
+export const ruleRuns = sqliteTable("rule_runs",{
+  id:text("id").primaryKey(),
+  ruleSetId:text("rule_set_id").notNull(),
+  scheduledSlot:text("scheduled_slot").notNull(),
+  status:text("status").notNull(),
+  resultJson:text("result_json").notNull(),
+  createdAt:text("created_at").notNull(),
+  updatedAt:text("updated_at").notNull(),
+},(table)=>[uniqueIndex("rule_runs_set_slot").on(table.ruleSetId,table.scheduledSlot)]);

@@ -1,5 +1,3 @@
-import { env } from "cloudflare:workers";
-
 type QueryMode = "first" | "all" | "run";
 type QueryPayload = { sql: string; params: unknown[]; mode: QueryMode };
 
@@ -83,7 +81,7 @@ export function database(): Database {
   const proxyUrl = process.env.LOCAL_MYSQL_PROXY_URL?.replace(/\/$/, "");
   if (proxyUrl) return new LocalMySqlDatabase(proxyUrl);
 
-  const d1 = env.DB as D1Database | undefined;
+  const d1 = (globalThis as typeof globalThis & { __PULSE_D1_DATABASE__?: D1Database }).__PULSE_D1_DATABASE__;
   if (!d1) throw new Error("Database storage is unavailable");
   return d1 as unknown as Database;
 }

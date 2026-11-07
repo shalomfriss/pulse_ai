@@ -1,6 +1,6 @@
 "use client";
 
-export type LocalBacktestKind="portfolio"|"daytrading"|"optimize-daytrading";
+export type LocalBacktestKind="portfolio"|"daytrading"|"optimize-daytrading"|"rules";
 
 export function runLocalBacktest<T>(kind:LocalBacktestKind,input:Record<string,unknown>,signal?:AbortSignal){
   return new Promise<T>((resolve,reject)=>{

@@ -11,3 +11,4 @@ node_modules
 outputs
 work
 npm-debug.log*
+backtesting_data/*.json
