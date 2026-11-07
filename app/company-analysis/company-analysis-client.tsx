@@ -6,7 +6,7 @@ import TopbarNav from "../topbar-nav";
 
 type Horizon = { value: number | null; yearsUsed: number };
 
-type CompanyResult = {
+export type CompanyResult = {
   symbol: string;
   companyName?: string;
   error?: string;
@@ -75,7 +75,7 @@ type CompanyResult = {
   methodology?: { roe: string; debt: string };
 };
 
-type AnalysisResponse = {
+export type AnalysisResponse = {
   analyzedAt?: string;
   results?: CompanyResult[];
   sourceNote?: string;

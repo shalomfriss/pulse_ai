@@ -362,6 +362,15 @@ export function analyzeCompany(symbol: string, cik: number, facts: SecCompanyFac
   );
   const latestRevenue = revenueSeries[0]?.value ?? null;
   const latestOperatingIncome = operatingIncomeSeries[0]?.value ?? null;
+  // Ratios use facts aligned to the income statement's fiscal year end. Missing
+  // values remain null rather than being interpreted as zero.
+  const annualAt = (tags: string[]) => annualSeries(taxonomy, tags).find((item) => item.end === latestEnd)?.value ?? null;
+  const instantAt = (tags: string[]) => valueFromTagsAt(taxonomy, tags, latestEnd);
+  const grossProfit = annualAt(["GrossProfit"]);
+  const currentAssets = instantAt(["AssetsCurrent", "CurrentAssets"]);
+  const currentLiabilities = instantAt(["LiabilitiesCurrent", "CurrentLiabilities"]);
+  const operatingCashFlow = annualAt(["NetCashProvidedByUsedInOperatingActivities", "CashFlowsFromUsedInOperatingActivities"]);
+  const capex = annualAt(["PaymentsToAcquirePropertyPlantAndEquipment", "PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities"]);
   const latestPretax = pretaxSeries.find((item) => item.end === operatingIncomeSeries[0]?.end)?.value ?? pretaxSeries[0]?.value ?? null;
   const latestTax = taxSeries.find((item) => item.end === operatingIncomeSeries[0]?.end)?.value ?? taxSeries[0]?.value ?? null;
   const cashTaxRate = latestPretax && latestPretax > 0 && latestTax !== null
@@ -547,6 +556,17 @@ export function analyzeCompany(symbol: string, cik: number, facts: SecCompanyFac
     yearsAnalyzed: roeYears.length,
     strengths,
     cautions,
+    ratios: {
+      asOf: latestEnd,
+      revenue: revenueSeries.find((item) => item.end === latestEnd)?.value ?? null,
+      operatingIncome: operatingIncomeSeries.find((item) => item.end === latestEnd)?.value ?? null,
+      netIncome: incomeFacts[0].val,
+      grossProfit,
+      currentAssets,
+      currentLiabilities,
+      operatingCashFlow,
+      capex,
+    },
     valuation: nopat !== null && latestRevenue !== null && investedCapital !== null ? {
       framework:"McKinsey-style enterprise DCF",
       revenue:latestRevenue,
@@ -657,7 +677,7 @@ export async function POST(request: Request) {
   const user = await getChatGPTUser();
   if (!user) return Response.json({ error: "Sign in required" }, { status: 401 });
 
-  const body = (await request.json().catch(() => ({}))) as { symbols?: unknown };
+  const body = (await request.json().catch(() => ({}))) as { symbols?: unknown; includeFiling?: boolean };
   const symbols = Array.from(
     new Set(
       String(body.symbols ?? "")
@@ -699,7 +719,21 @@ export async function POST(request: Request) {
       try {
         const cik = String(record.cik_str).padStart(10, "0");
         const facts = await fetchJson<SecCompanyFacts>(`https://data.sec.gov/api/xbrl/companyfacts/CIK${cik}.json`);
-        results.push(analyzeCompany(symbol, record.cik_str, facts, prices.get(symbol) ?? null));
+        const analysis = analyzeCompany(symbol, record.cik_str, facts, prices.get(symbol) ?? null);
+        let filing: { form: string; filed: string; reportDate: string; url: string } | null = null;
+        if (body.includeFiling && symbols.length === 1) {
+          try {
+            const submissions = await fetchJson<{ filings: { recent: { form: string[]; filingDate: string[]; reportDate: string[]; accessionNumber: string[]; primaryDocument: string[] } } }>(`https://data.sec.gov/submissions/CIK${cik}.json`);
+            const recent = submissions.filings.recent;
+            const index = recent.form.findIndex((form) => form === "10-K");
+            if (index >= 0 && recent.accessionNumber[index] && recent.primaryDocument[index]) {
+              filing = { form: "10-K", filed: recent.filingDate[index], reportDate: recent.reportDate[index], url: `https://www.sec.gov/Archives/edgar/data/${record.cik_str}/${recent.accessionNumber[index].replace(/-/g, "")}/${recent.primaryDocument[index]}` };
+            }
+          } catch {
+            // Filing metadata is supplementary; preserve the valuation if SEC submissions are unavailable.
+          }
+        }
+        results.push({ ...analysis, ...(body.includeFiling ? { filing } : {}) });
       } catch (error) {
         results.push({ symbol, companyName: record.title, error: error instanceof Error ? error.message : "Analysis unavailable." });
       }

@@ -3,6 +3,7 @@ const moreLinks = [
   ["/company-analysis", "Company Analysis"],
   ["/market-intelligence", "Market Intelligence"],
   ["/valuation", "Valuation"],
+  ["/valuation-in-depth", "Valuation in Depth"],
   ["/mass-valuation", "Mass Valuation"],
   ["/candlestick", "Candlestick"],
   ["/backtesting", "Backtesting"],
